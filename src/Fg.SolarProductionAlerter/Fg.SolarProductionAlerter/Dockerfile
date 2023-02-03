@@ -1,0 +1,14 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build-env
+WORKDIR /app
+
+COPY *.csproj ./
+RUN dotnet restore
+
+COPY . ./
+RUN dotnet publish Fg.SolarProductionAlerter.csproj -f net7.0 -c Release -o Fg.SolarProductionAlerter/out
+
+FROM mcr.microsoft.com/dotnet/runtime:7.0-alpine
+WORKDIR /app
+COPY --from=build-env /app/Fg.SolarProductionAlerter/out ./
+
+ENTRYPOINT ["dotnet", "Fg.SolarProductionAlerter.dll"]
