@@ -1,0 +1,15 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+WORKDIR /app
+
+COPY *.csproj ./
+RUN dotnet restore --runtime linux-x64
+
+COPY . ./
+RUN dotnet publish Fg.SolarProductionAlerter.csproj --runtime linux-arm -c Release -o Fg.SolarProductionAlerter/out
+
+FROM mcr.microsoft.com/dotnet/runtime:7.0-bullseye-slim-arm32v7
+WORKDIR /app
+COPY --from=build-env /app/Fg.SolarProductionAlerter/out ./
+COPY qemu-arm-static /usr/bin/qemu-arm-static
+
+ENTRYPOINT ["dotnet", "Fg.SolarProductionAlerter.dll"]
