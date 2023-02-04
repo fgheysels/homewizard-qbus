@@ -2,10 +2,10 @@
 WORKDIR /app
 
 COPY *.csproj ./
-RUN dotnet restore --runtime linux-x64
+RUN dotnet restore
 
 COPY . ./
-RUN dotnet publish Fg.SolarProductionAlerter.csproj --runtime linux-arm -c Release -o Fg.SolarProductionAlerter/out
+RUN dotnet publish Fg.SolarProductionAlerter.csproj -c Release -o Fg.SolarProductionAlerter/out
 
 FROM mcr.microsoft.com/dotnet/runtime:7.0-bullseye-slim-arm32v7
 WORKDIR /app
