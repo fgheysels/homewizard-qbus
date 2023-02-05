@@ -20,7 +20,7 @@ namespace Fg.SolarProductionAlerter.Qbus
                 Value = new
                 {
                     Usr = username,
-                    Psw = password
+                    Psw = password ?? string.Empty
                 }
             };
 
@@ -39,7 +39,7 @@ namespace Fg.SolarProductionAlerter.Qbus
 
         public EqoWebSession(string sessionCookie)
         {
-                _sessionCookie = sessionCookie;
+            _sessionCookie = sessionCookie;
         }
 
         private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(string address, int port, HttpMethod method, params KeyValuePair<string, string>[] bodyValues)
