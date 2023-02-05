@@ -24,7 +24,7 @@ namespace Fg.SolarProductionAlerter.Qbus
                 }
             };
 
-            var response = await SendRequestAsync<LoginResponseContent>(address, port, HttpMethod.Post,
+            var response = await SendRequestAsync<LoginResponseContent>(address, port, HttpMethod.Post, sessionCookie: null,
                                         new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(loginData)));
 
             if (response.Value.Rsp == false)
@@ -32,21 +32,44 @@ namespace Fg.SolarProductionAlerter.Qbus
                 throw new Exception("Login to QBUS failed");
             }
 
-            return new EqoWebSession(response.Value.Id);
+            return new EqoWebSession(address, port, response.Value.Id);
         }
 
         private readonly string _sessionCookie;
+        private readonly string _address;
+        private readonly int _port;
 
-        public EqoWebSession(string sessionCookie)
+        public EqoWebSession(string address, int port, string sessionCookie)
         {
+            _address = address;
+            _port = port;
             _sessionCookie = sessionCookie;
         }
 
-        private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(string address, int port, HttpMethod method, params KeyValuePair<string, string>[] bodyValues)
+        public async Task<IEnumerable<ControlListGroup>> GetControlLists()
+        {
+            var getControlListsData = new EqoWebRequest<object>()
+            {
+                Type = 10,
+                Value = null
+            };
+
+            var response = await SendRequestAsync<ControlListResponseContent>(_address, _port, HttpMethod.Post, _sessionCookie,
+                                        new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(getControlListsData)));
+
+            return response.Value.Groups;
+        }
+
+        private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(string address, int port, HttpMethod method, string? sessionCookie = null, params KeyValuePair<string, string>[] bodyValues)
         {
             var message = new HttpRequestMessage(method, $"http://{address}:{port}/default.aspx");
 
             message.Content = new FormUrlEncodedContent(bodyValues);
+
+            if (sessionCookie != null)
+            {
+                message.Headers.Add("Cookie", $"i={sessionCookie}");
+            }
 
             var response = await _httpClient.SendAsync(message);
 

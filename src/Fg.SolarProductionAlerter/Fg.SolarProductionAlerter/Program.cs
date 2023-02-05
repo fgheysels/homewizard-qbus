@@ -14,6 +14,8 @@ namespace Fg.SolarProductionAlerter
            var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
 
             var eqoWebSession = await EqoWebSession.CreateSessionAsync(qbusSettings.IpAddress, qbusSettings.Port, qbusSettings.Username, qbusSettings.Password);
+
+            var controlLists = await eqoWebSession.GetControlLists();
         }
 
         private  static IConfiguration BuildConfiguration()
