@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Net;
+using Fg.SolarProductionAlerter.Qbus.Models;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace Fg.SolarProductionAlerter.Qbus
 {
@@ -58,6 +54,22 @@ namespace Fg.SolarProductionAlerter.Qbus
                                         new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(getControlListsData)));
 
             return response.Value.Groups;
+        }
+
+        public async Task SetControlItemValue(int channel, int value)
+        {
+            var setControlData = new EqoWebRequest<SetControlItemValueContent>()
+            {
+                Type = 13,
+                Value = new SetControlItemValueContent()
+                {
+                    Channel = channel,
+                    Value = new[] { value }
+                }
+            };
+
+            var response = await SendRequestAsync<object>(_address, _port, HttpMethod.Post, _sessionCookie,
+                new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(setControlData)));
         }
 
         private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(string address, int port, HttpMethod method, string? sessionCookie = null, params KeyValuePair<string, string>[] bodyValues)

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Fg.SolarProductionAlerter.Qbus
+namespace Fg.SolarProductionAlerter.Qbus.Models
 {
     internal class ControlListResponseContent
     {

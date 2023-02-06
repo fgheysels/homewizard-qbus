@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Fg.SolarProductionAlerter.Qbus
+namespace Fg.SolarProductionAlerter.Qbus.Models
 {
     internal class LoginResponseContent
     {
