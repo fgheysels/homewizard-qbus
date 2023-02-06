@@ -10,27 +10,27 @@ namespace Fg.SolarProductionAlerter.Qbus
     internal class ControlListResponseContent
     {
         [JsonPropertyName("Groups")]
-        internal ControlListGroup[] Groups { get; set; }
+        public ControlListGroup[] Groups { get; set; }
     }
 
     internal class ControlListGroup
     {
         [JsonPropertyName("Nme")]
-        internal string Name { get; set; }
+        public string Name { get; set; }
 
         [JsonPropertyName("Itms")]
-        internal ControlItem[] Items { get; set; }
+        public ControlItem[] Items { get; set; }
     }
 
     internal class ControlItem
     {
         [JsonPropertyName("Chnl")]
-        internal int Channel { get; set; }
+        public int Channel { get; set; }
 
         [JsonPropertyName("Nme")]
-        internal string Name { get; set; }
+        public string Name { get; set; }
 
         [JsonPropertyName("Val")]
-        internal int[] Value { get; set; }
+        public int[] Value { get; set; }
     }
 }
