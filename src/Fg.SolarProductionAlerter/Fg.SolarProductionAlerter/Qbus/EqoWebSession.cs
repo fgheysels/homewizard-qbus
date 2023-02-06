@@ -56,11 +56,11 @@ namespace Fg.SolarProductionAlerter.Qbus
             return response.Value.Groups;
         }
 
-        public async Task SetControlItemValue(int channel, int value)
+        public async Task SetControlItemValueAsync(int channel, int value)
         {
             var setControlData = new EqoWebRequest<SetControlItemValueContent>()
             {
-                Type = 13,
+                Type = 12,
                 Value = new SetControlItemValueContent()
                 {
                     Channel = channel,
