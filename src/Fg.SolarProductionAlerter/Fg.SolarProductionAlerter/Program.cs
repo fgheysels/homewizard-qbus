@@ -1,4 +1,5 @@
-﻿using Fg.SolarProductionAlerter.Qbus;
+﻿using Fg.SolarProductionAlerter.HomeWizard;
+using Fg.SolarProductionAlerter.Qbus;
 using Fg.SolarProductionAlerter.Qbus.Models;
 using Microsoft.Extensions.Configuration;
 
@@ -8,20 +9,36 @@ namespace Fg.SolarProductionAlerter
     {
         static async Task Main(string[] args)
         {
+            Console.WriteLine("start");
+
             var configuration = BuildConfiguration();
 
-            var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
+            //var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
 
-            var eqoWebSession = await EqoWebSession.CreateSessionAsync(qbusSettings.IpAddress, qbusSettings.Port, qbusSettings.Username, qbusSettings.Password);
+            //var eqoWebSession = await EqoWebSession.CreateSessionAsync(qbusSettings.IpAddress, qbusSettings.Port, qbusSettings.Username, qbusSettings.Password);
 
-            var controlLists = await eqoWebSession.GetControlLists();
+            //var controlLists = await eqoWebSession.GetControlLists();
 
-            var solarIndicators = GetSolarIndicatorControlItems(qbusSettings.SolarIndicators, controlLists.First());
+            //var solarIndicators = GetSolarIndicatorControlItems(qbusSettings.SolarIndicators, controlLists.First());
 
-            foreach (var solarIndicator in solarIndicators)
+            //foreach (var solarIndicator in solarIndicators)
+            //{
+            //    await eqoWebSession.SetControlItemValueAsync(solarIndicator.Channel, 1);
+            //}
+
+            var devices = await HomeWizardDeviceResolver.FindHomeWizardDevicesAsync();
+            Console.WriteLine("Devices:");
+            foreach (var d in devices)
             {
-                await eqoWebSession.SetControlItemValueAsync(solarIndicator.Channel, 1);
+                Console.WriteLine(d.Name + " " + d.IPAddress);
             }
+
+            var x = new HomeWizardService(new HomeWizardDevice("test", "192.168.1.101") ); //devices.First());
+
+            var result = await x.GetCurrentMeasurements();
+
+            Console.WriteLine($"Import: {result.TotalPowerImport}");
+            Console.WriteLine($"Import: {result.TotalPowerExport}");
         }
 
         private static IEnumerable<ControlItem> GetSolarIndicatorControlItems(string solarIndicators, ControlListGroup controlListGroup)
