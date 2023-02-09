@@ -1,9 +1,15 @@
-﻿using Zeroconf;
+﻿using System.Linq;
+using Zeroconf;
 
 namespace Fg.SolarProductionAlerter.HomeWizard
 {
     internal static class HomeWizardDeviceResolver
     {
+        public static async Task<HomeWizardDevice?> FindHomeWizardDeviceAsync(string deviceName)
+        {
+            return (await FindHomeWizardDevicesAsync()).FirstOrDefault(d => d.Name == deviceName);
+        }
+
         public static async Task<IEnumerable<HomeWizardDevice>> FindHomeWizardDevicesAsync()
         {
             IReadOnlyList<IZeroconfHost> results = await ZeroconfResolver.ResolveAsync("_hwenergy._tcp.local.");

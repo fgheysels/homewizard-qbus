@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 
 namespace Fg.SolarProductionAlerter.HomeWizard
 {
     public class HomeWizardConfigurationSettings
     {
-        public string P1MeterHostName { get; set; }
+        [ConfigurationProperty("P1HostName")]
+        public string P1HostName { get; set; }
     }
 }

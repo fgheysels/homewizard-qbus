@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Fg.SolarProductionAlerter.HomeWizard.Models;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Fg.SolarProductionAlerter.HomeWizard.Models;
 
 namespace Fg.SolarProductionAlerter.HomeWizard
 {
-    internal class HomeWizardService
+    public interface IHomeWizardService
     {
-        private readonly HomeWizardDevice _p1Meter;
+        Task<CurrentMeasurement> GetCurrentMeasurements();
+    }
+
+    internal class HomeWizardService : IHomeWizardService
+    {
         private static readonly HttpClient _http = new HttpClient();
 
         public HomeWizardService(HomeWizardDevice p1Meter)
         {
-            _p1Meter = p1Meter;
             _http.BaseAddress = new Uri($"http://{p1Meter.IPAddress}/api/");
         }
 
