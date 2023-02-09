@@ -20,10 +20,27 @@ namespace Fg.SolarProductionAlerter.Tests
             Assert.Equal(PowerUsageState.Unknown, result);
         }
 
-        //[Theory]
-        //public void CanDeterminePowerUsage()
-        //{
+        [Theory]
+        [InlineData(3510, 10, PowerUsageState.ExtremeOverProduction)]
+        [InlineData(3510, 1000, PowerUsageState.OverProduction)]
+        [InlineData(200, 800, PowerUsageState.NotEnoughProduction)]
+        public async Task CanDeterminePowerUsage(double currentPowerExport, double currentPowerImport, PowerUsageState expectedState)
+        {
+            var homeWizardService = new Mock<IHomeWizardService>();
 
-        //}
+            homeWizardService.SetupSequence(s => s.GetCurrentMeasurements())
+                .ReturnsAsync(new CurrentMeasurement { TotalPowerExport = 0, TotalPowerImport = 0 })
+                .ReturnsAsync(new CurrentMeasurement { TotalPowerExport = currentPowerExport, TotalPowerImport = currentPowerImport });
+
+            var sut = new PowerUsageDeterminator(homeWizardService.Object);
+
+            // We need two calls, since the first call will always return 'Unknown', as at this time, we have no clue
+            // of the power-usage delta.
+            _ = await sut.CalculatePowerUsageStateAsync();
+
+            var result = await sut.CalculatePowerUsageStateAsync();
+
+            Assert.Equal(expectedState, result);
+        }
     }
 }

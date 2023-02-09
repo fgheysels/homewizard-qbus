@@ -16,6 +16,10 @@ namespace Fg.SolarProductionAlerter
 
         public async Task<PowerUsageState> CalculatePowerUsageStateAsync()
         {
+            // TODO: possible to improve: if the active_power_average_w takes into account solar panel production
+            //       (is a delta between import & export), we can simplify this implementation and just take that
+            //       value into account.
+
             var currentPowerUsage = await _homeWizard.GetCurrentMeasurements();
 
             if (_previousPowerExportValue == double.MinValue &&
@@ -35,7 +39,7 @@ namespace Fg.SolarProductionAlerter
 
             var delta = activePowerImport - activePowerExport;
 
-            if (delta < -3500)
+            if (delta <= -3500)
             {
                 return PowerUsageState.ExtremeOverProduction;
             }
@@ -54,7 +58,7 @@ namespace Fg.SolarProductionAlerter
         }
     }
 
-    internal enum PowerUsageState
+    public enum PowerUsageState
     {
         Unknown = 0,
 
