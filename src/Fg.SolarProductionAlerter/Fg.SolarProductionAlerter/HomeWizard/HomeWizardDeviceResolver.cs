@@ -1,16 +1,16 @@
-﻿using System.Linq;
+﻿using Microsoft.Extensions.Logging;
 using Zeroconf;
 
 namespace Fg.SolarProductionAlerter.HomeWizard
 {
     internal static class HomeWizardDeviceResolver
     {
-        public static async Task<HomeWizardDevice?> FindHomeWizardDeviceAsync(string deviceName)
+        public static async Task<HomeWizardDevice?> FindHomeWizardDeviceAsync(string deviceName, ILogger logger)
         {
-            return (await FindHomeWizardDevicesAsync()).FirstOrDefault(d => d.Name == deviceName);
+            return (await FindHomeWizardDevicesAsync(logger)).FirstOrDefault(d => d.Name == deviceName);
         }
 
-        public static async Task<IEnumerable<HomeWizardDevice>> FindHomeWizardDevicesAsync()
+        public static async Task<IEnumerable<HomeWizardDevice>> FindHomeWizardDevicesAsync(ILogger logger)
         {
             IReadOnlyList<IZeroconfHost> results = await ZeroconfResolver.ResolveAsync("_hwenergy._tcp.local.");
 
@@ -18,6 +18,7 @@ namespace Fg.SolarProductionAlerter.HomeWizard
 
             foreach (var device in results)
             {
+                logger.LogDebug($"Device {device.DisplayName} found");
                 devices.Add(new HomeWizardDevice(device.DisplayName, device.IPAddress));
             }
 

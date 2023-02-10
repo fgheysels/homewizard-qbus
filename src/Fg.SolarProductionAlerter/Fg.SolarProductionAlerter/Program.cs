@@ -3,6 +3,7 @@ using Fg.SolarProductionAlerter.HomeWizard;
 using Fg.SolarProductionAlerter.Qbus;
 using Fg.SolarProductionAlerter.Qbus.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Fg.SolarProductionAlerter
 {
@@ -18,13 +19,21 @@ namespace Fg.SolarProductionAlerter
                 e.Cancel = true;
             };
 
+            var loggerFactory = CreateLoggerFactory();
             var configuration = BuildConfiguration();
 
-            var homeWizard = await GetHomeWizardDevice(configuration);
+            var homeWizard = await GetHomeWizardDevice(configuration, loggerFactory);
             var qbusIndicators = GetConfiguredSolarIndicatorItems(configuration);
+
+            var logger = loggerFactory.CreateLogger<Program>();
+
+            var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard));
 
             while (cts.IsCancellationRequested == false)
             {
+                var powerUsage = await pud.CalculatePowerUsageStateAsync();
+
+                logger.LogInformation($"Power State: {powerUsage}");
 
                 await Task.Delay(TimeSpan.FromSeconds(30), cts.Token);
             }
@@ -42,22 +51,16 @@ namespace Fg.SolarProductionAlerter
             //    await eqoWebSession.SetControlItemValueAsync(solarIndicator.Channel, 1);
             //}
 
-            var devices = await HomeWizardDeviceResolver.FindHomeWizardDevicesAsync();
-            Console.WriteLine("Devices:");
-            foreach (var d in devices)
-            {
-                Console.WriteLine(d.Name + " " + d.IPAddress);
-            }
+            
+            //var x = new HomeWizardService(new HomeWizardDevice("test", "192.168.1.101")); //devices.First());
 
-            var x = new HomeWizardService(new HomeWizardDevice("test", "192.168.1.101")); //devices.First());
+            //var result = await x.GetCurrentMeasurements();
 
-            var result = await x.GetCurrentMeasurements();
-
-            Console.WriteLine($"Import: {result.TotalPowerImport}");
-            Console.WriteLine($"Import: {result.TotalPowerExport}");
+            //Console.WriteLine($"Import: {result.TotalPowerImport}");
+            //Console.WriteLine($"Import: {result.TotalPowerExport}");
         }
 
-        private static async Task<HomeWizardDevice> GetHomeWizardDevice(IConfiguration configuration)
+        private static async Task<HomeWizardDevice> GetHomeWizardDevice(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             var settings = configuration.GetSection("HomeWizard").Get<HomeWizardConfigurationSettings>();
 
@@ -66,7 +69,7 @@ namespace Fg.SolarProductionAlerter
                 throw new ConfigurationErrorsException("HomeWizard P1 Meter not configured.  HomeWizard__P1HostName setting not found.");
             }
 
-            var device = await HomeWizardDeviceResolver.FindHomeWizardDeviceAsync(settings.P1HostName);
+            var device = await HomeWizardDeviceResolver.FindHomeWizardDeviceAsync(settings.P1HostName, loggerFactory.CreateLogger(nameof(HomeWizardDeviceResolver)));
 
             if (device == null)
             {
@@ -101,6 +104,11 @@ namespace Fg.SolarProductionAlerter
             var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
             return configuration;
+        }
+
+        private static ILoggerFactory CreateLoggerFactory()
+        {
+            return LoggerFactory.Create(builder => builder.AddSystemdConsole());
         }
     }
 }
