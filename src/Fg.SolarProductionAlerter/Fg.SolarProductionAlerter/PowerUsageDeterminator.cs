@@ -1,17 +1,20 @@
 ﻿using Fg.SolarProductionAlerter.HomeWizard;
+using Microsoft.Extensions.Logging;
 
 namespace Fg.SolarProductionAlerter
 {
     internal class PowerUsageDeterminator
     {
         private readonly IHomeWizardService _homeWizard;
+        private readonly ILogger<PowerUsageDeterminator> _logger;
 
         private double _previousPowerImportValue = double.MinValue;
         private double _previousPowerExportValue = double.MinValue;
 
-        public PowerUsageDeterminator(IHomeWizardService homeWizardService)
+        public PowerUsageDeterminator(IHomeWizardService homeWizardService, ILogger<PowerUsageDeterminator> logger)
         {
             _homeWizard = homeWizardService;
+            _logger = logger;
         }
 
         public async Task<PowerUsageState> CalculatePowerUsageStateAsync()
@@ -38,6 +41,8 @@ namespace Fg.SolarProductionAlerter
             _previousPowerImportValue = currentPowerUsage.TotalPowerImport;
 
             var delta = activePowerImport - activePowerExport;
+
+            _logger.LogInformation($"Power Usage: {delta} watt");
 
             if (delta <= -3500)
             {

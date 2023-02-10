@@ -12,7 +12,7 @@ namespace Fg.SolarProductionAlerter
         static async Task Main(string[] args)
         {
             var cts = new CancellationTokenSource();
-            Console.CancelKeyPress += (s, e) =>
+            Console.CancelKeyPress += (_, e) =>
             {
                 Console.WriteLine("Canceling...");
                 cts.Cancel();
@@ -27,7 +27,7 @@ namespace Fg.SolarProductionAlerter
 
             var logger = loggerFactory.CreateLogger<Program>();
 
-            var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard));
+            var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard), loggerFactory.CreateLogger<PowerUsageDeterminator>());
 
             while (cts.IsCancellationRequested == false)
             {
@@ -51,7 +51,7 @@ namespace Fg.SolarProductionAlerter
             //    await eqoWebSession.SetControlItemValueAsync(solarIndicator.Channel, 1);
             //}
 
-            
+
             //var x = new HomeWizardService(new HomeWizardDevice("test", "192.168.1.101")); //devices.First());
 
             //var result = await x.GetCurrentMeasurements();
@@ -108,7 +108,7 @@ namespace Fg.SolarProductionAlerter
 
         private static ILoggerFactory CreateLoggerFactory()
         {
-            return LoggerFactory.Create(builder => builder.AddSystemdConsole( options =>
+            return LoggerFactory.Create(builder => builder.AddSimpleConsole(options =>
             {
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss";
                 options.UseUtcTimestamp = false;
