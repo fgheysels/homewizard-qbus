@@ -1,12 +1,29 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: solar-prod-alert
 spec:
-  hostNetwork: true # allows to connect to the host-network and detect devices via mdns
-  containers:
-  - name: solar-prod-alert
-    image: fgheysels/solarpoweralerter:015
-    env:
-    - name: HomeWizard__P1HostName
-      value: p1meter-015AB0
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solar-alerter
+  template:
+    metadata:
+      labels:
+        app: solar-alerter
+    spec:
+      hostNetwork: true # allows to connect to the host-network and detect devices via mdns
+      containers:
+      - name: solar-prod-alert
+        image: fgheysels/solarpoweralerter:015
+        env:
+        - name: HomeWizard__P1HostName
+          value: p1meter-015AB0
+        - name: QBus__IpAddress
+          value: 192.168.1.14
+        - name: QBus__Port
+          value: "8444"
+        - name: QBus__Username
+          value: QBus
+        - name: QBus__SolarIndicators
+          value: SOLAR_INDICA
