@@ -108,7 +108,11 @@ namespace Fg.SolarProductionAlerter
 
         private static ILoggerFactory CreateLoggerFactory()
         {
-            return LoggerFactory.Create(builder => builder.AddSystemdConsole());
+            return LoggerFactory.Create(builder => builder.AddSystemdConsole( options =>
+            {
+                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss";
+                options.UseUtcTimestamp = false;
+            }));
         }
     }
 }
