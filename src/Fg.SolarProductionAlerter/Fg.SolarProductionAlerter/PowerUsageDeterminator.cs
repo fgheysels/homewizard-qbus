@@ -37,24 +37,29 @@ namespace Fg.SolarProductionAlerter
             var activePowerExport = currentPowerUsage.TotalPowerExport - _previousPowerExportValue;
             var activePowerImport = currentPowerUsage.TotalPowerImport - _previousPowerImportValue;
 
+            _logger.LogInformation($"Power import - current: {currentPowerUsage.TotalPowerImport} - previous: {_previousPowerImportValue}");
+            _logger.LogInformation($"Power export - current: {currentPowerUsage.TotalPowerExport} - previous: {_previousPowerExportValue}");
+
+            _logger.LogInformation($"Active Power import: {activePowerImport} - export: {activePowerExport}");
+
             _previousPowerExportValue = currentPowerUsage.TotalPowerExport;
             _previousPowerImportValue = currentPowerUsage.TotalPowerImport;
 
-            var delta = activePowerImport - activePowerExport;
+            var powerUsageInWatt = (activePowerImport - activePowerExport) * 1000;
 
-            _logger.LogInformation($"Power Usage: {delta} watt");
+            _logger.LogInformation($"Power Usage: {powerUsageInWatt} watt");
 
-            if (delta <= -3500)
+            if (powerUsageInWatt <= -3500)
             {
                 return PowerUsageState.ExtremeOverProduction;
             }
 
-            if (delta < -1500)
+            if (powerUsageInWatt < -1500)
             {
                 return PowerUsageState.OverProduction;
             }
 
-            if (delta > 100)
+            if (powerUsageInWatt > 100)
             {
                 return PowerUsageState.NotEnoughProduction;
             }
