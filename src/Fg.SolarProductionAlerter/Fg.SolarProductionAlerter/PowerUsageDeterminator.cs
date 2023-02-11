@@ -1,4 +1,5 @@
 ﻿using Fg.SolarProductionAlerter.HomeWizard;
+using Fg.SolarProductionAlerter.HomeWizard.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Fg.SolarProductionAlerter
@@ -8,8 +9,7 @@ namespace Fg.SolarProductionAlerter
         private readonly IHomeWizardService _homeWizard;
         private readonly ILogger<PowerUsageDeterminator> _logger;
 
-        private double _previousPowerImportValue = double.MinValue;
-        private double _previousPowerExportValue = double.MinValue;
+        private Measurement? _previousMeasurement = null;
 
         public PowerUsageDeterminator(IHomeWizardService homeWizardService, ILogger<PowerUsageDeterminator> logger)
         {
@@ -25,36 +25,31 @@ namespace Fg.SolarProductionAlerter
 
             var currentPowerUsage = await _homeWizard.GetCurrentMeasurements();
 
-            if (_previousPowerExportValue == double.MinValue &&
-                _previousPowerImportValue == double.MinValue)
+            if (_previousMeasurement == null )
             {
-                _previousPowerExportValue = currentPowerUsage.TotalPowerExport;
-                _previousPowerImportValue = currentPowerUsage.TotalPowerImport;
+                _previousMeasurement = currentPowerUsage;
 
                 return PowerUsageState.Unknown;
             }
 
-            var activePowerExport = currentPowerUsage.TotalPowerExport - _previousPowerExportValue;
-            var activePowerImport = currentPowerUsage.TotalPowerImport - _previousPowerImportValue;
+            var activePowerExport = currentPowerUsage.TotalPowerExportInKwh - _previousMeasurement.TotalPowerExportInKwh;
+            var activePowerImport = currentPowerUsage.TotalPowerImportInKwh - _previousMeasurement.TotalPowerImportInKwh;
 
-            _logger.LogInformation($"Power import - current: {currentPowerUsage.TotalPowerImport} - previous: {_previousPowerImportValue}");
-            _logger.LogInformation($"Power export - current: {currentPowerUsage.TotalPowerExport} - previous: {_previousPowerExportValue}");
+            _logger.LogInformation($"Power import - current: {currentPowerUsage.TotalPowerImportInKwh} - previous: {_previousMeasurement.TotalPowerImportInKwh}");
+            _logger.LogInformation($"Power export - current: {currentPowerUsage.TotalPowerExportInKwh} - previous: {_previousMeasurement.TotalPowerExportInKwh}");
 
             _logger.LogInformation($"Active Power import: {activePowerImport} - export: {activePowerExport}");
 
-            _previousPowerExportValue = currentPowerUsage.TotalPowerExport;
-            _previousPowerImportValue = currentPowerUsage.TotalPowerImport;
-
-            var powerUsageInWatt = (activePowerImport - activePowerExport) * 1000;
+            var powerUsageInWatt = (activePowerImport - activePowerExport) / (currentPowerUsage.Timestamp - _previousMeasurement.Timestamp).TotalHours * 1000;
 
             _logger.LogInformation($"Power Usage: {powerUsageInWatt} watt");
 
-            if (powerUsageInWatt <= -3500)
+            if (powerUsageInWatt <= -3000)
             {
                 return PowerUsageState.ExtremeOverProduction;
             }
 
-            if (powerUsageInWatt < -1500)
+            if (powerUsageInWatt <= -800)
             {
                 return PowerUsageState.OverProduction;
             }

@@ -56,8 +56,8 @@ namespace Fg.SolarProductionAlerter
 
             //var result = await x.GetCurrentMeasurements();
 
-            //Console.WriteLine($"Import: {result.TotalPowerImport}");
-            //Console.WriteLine($"Import: {result.TotalPowerExport}");
+            //Console.WriteLine($"Import: {result.TotalPowerImportInKwh}");
+            //Console.WriteLine($"Import: {result.TotalPowerExportInKwh}");
         }
 
         private static async Task<HomeWizardDevice> GetHomeWizardDevice(IConfiguration configuration, ILoggerFactory loggerFactory)

@@ -5,7 +5,7 @@ namespace Fg.SolarProductionAlerter.HomeWizard
 {
     public interface IHomeWizardService
     {
-        Task<CurrentMeasurement> GetCurrentMeasurements();
+        Task<Measurement> GetCurrentMeasurements();
     }
 
     internal class HomeWizardService : IHomeWizardService
@@ -17,7 +17,7 @@ namespace Fg.SolarProductionAlerter.HomeWizard
             _http.BaseAddress = new Uri($"http://{p1Meter.IPAddress}/api/");
         }
 
-        public async Task<CurrentMeasurement> GetCurrentMeasurements()
+        public async Task<Measurement> GetCurrentMeasurements()
         {
             var response = await _http.GetAsync("v1/data");
 
@@ -29,15 +29,17 @@ namespace Fg.SolarProductionAlerter.HomeWizard
 
             var json = await response.Content.ReadAsStringAsync();
 
-            var measurements = JsonSerializer.Deserialize<CurrentMeasurement>(json);
+            var measurement = JsonSerializer.Deserialize<Measurement>(json);
 
-            if (measurements == null)
+            if (measurement == null)
             {
                 throw new InvalidOperationException("Unable to deserialize response to model");
 
             }
 
-            return measurements;
+            measurement.Timestamp = DateTimeOffset.Now;
+
+            return measurement;
         }
     }
 }
