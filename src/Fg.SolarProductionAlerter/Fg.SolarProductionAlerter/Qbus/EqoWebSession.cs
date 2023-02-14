@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Fg.SolarProductionAlerter.Qbus.Models;
+﻿using Fg.SolarProductionAlerter.Qbus.Models;
 using System.Text.Json;
 
 namespace Fg.SolarProductionAlerter.Qbus
@@ -35,14 +34,27 @@ namespace Fg.SolarProductionAlerter.Qbus
         private readonly string _address;
         private readonly int _port;
 
-        public EqoWebSession(string address, int port, string sessionCookie)
+        private EqoWebSession(string address, int port, string sessionCookie)
         {
             _address = address;
             _port = port;
             _sessionCookie = sessionCookie;
         }
 
-        public async Task<IEnumerable<ControlListGroup>> GetControlLists()
+        public async Task<IEnumerable<ControlItem>> GetSolarIndicatorControlItems(QbusConfigurationSettings settings)
+        {
+            string[] configuredSolarIndicators = settings.SolarIndicators.Split(",");
+
+            var eqoWebControlLists = await GetControlLists();
+
+            var controlItems = eqoWebControlLists.SelectMany(m => m.Items)
+                                                 .Where(c => configuredSolarIndicators.Contains(c.Name, StringComparer.OrdinalIgnoreCase))
+                                                 .ToArray();
+
+            return controlItems;
+        }
+
+        private async Task<IEnumerable<ControlListGroup>> GetControlLists()
         {
             var getControlListsData = new EqoWebRequest<object>()
             {
@@ -51,9 +63,14 @@ namespace Fg.SolarProductionAlerter.Qbus
             };
 
             var response = await SendRequestAsync<ControlListResponseContent>(_address, _port, HttpMethod.Post, _sessionCookie,
-                                        new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(getControlListsData)));
+                new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(getControlListsData)));
 
             return response.Value.Groups;
+        }
+
+        public async Task SetSolarIndicatorAsync(ControlItem solarIndicator, PowerUsageState state)
+        {
+            await SetControlItemValueAsync(solarIndicator.Channel, (int)state);
         }
 
         public async Task SetControlItemValueAsync(int channel, int value)
@@ -68,11 +85,25 @@ namespace Fg.SolarProductionAlerter.Qbus
                 }
             };
 
-            var response = await SendRequestAsync<object>(_address, _port, HttpMethod.Post, _sessionCookie,
-                new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(setControlData)));
+            var response = await SendRequestAsync<object>(
+                                    _address, 
+                                    _port, 
+                                    HttpMethod.Post, 
+                                    _sessionCookie,
+                                    new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(setControlData)));
+
+            if (response.Type != 13)
+            {
+
+            }
         }
 
-        private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(string address, int port, HttpMethod method, string? sessionCookie = null, params KeyValuePair<string, string>[] bodyValues)
+        private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(
+            string address, 
+            int port, 
+            HttpMethod method, 
+            string? sessionCookie = null, 
+            params KeyValuePair<string, string>[] bodyValues)
         {
             var message = new HttpRequestMessage(method, $"http://{address}:{port}/default.aspx");
 

@@ -2,7 +2,7 @@
 
 namespace Fg.SolarProductionAlerter.Qbus.Models
 {
-    internal class ControlListResponseContent
+    internal class ControlListResponseContent 
     {
         [JsonPropertyName("Groups")]
         public ControlListGroup[] Groups { get; set; }

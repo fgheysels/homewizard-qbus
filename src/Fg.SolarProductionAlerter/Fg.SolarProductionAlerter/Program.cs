@@ -1,9 +1,8 @@
-﻿using System.Configuration;
-using Fg.SolarProductionAlerter.HomeWizard;
+﻿using Fg.SolarProductionAlerter.HomeWizard;
 using Fg.SolarProductionAlerter.Qbus;
-using Fg.SolarProductionAlerter.Qbus.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Configuration;
 
 namespace Fg.SolarProductionAlerter
 {
@@ -23,11 +22,12 @@ namespace Fg.SolarProductionAlerter
             var configuration = BuildConfiguration();
 
             var homeWizard = await GetHomeWizardDevice(configuration, loggerFactory);
-            var qbusIndicators = GetConfiguredSolarIndicatorItems(configuration);
 
             var logger = loggerFactory.CreateLogger<Program>();
 
             var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard), loggerFactory.CreateLogger<PowerUsageDeterminator>());
+
+            PowerUsageState previousPowerUsage = PowerUsageState.Unknown;
 
             while (cts.IsCancellationRequested == false)
             {
@@ -35,29 +35,33 @@ namespace Fg.SolarProductionAlerter
 
                 logger.LogInformation($"Power State: {powerUsage}");
 
+                if (powerUsage != previousPowerUsage && powerUsage != PowerUsageState.Unknown)
+                {
+                    var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
+
+                    await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSettings);
+                }
+
+                previousPowerUsage = powerUsage;
+
                 await Task.Delay(TimeSpan.FromSeconds(30), cts.Token);
             }
+        }
 
-            //var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
+        private static async Task ModifyQbusSolarIndicatorAsync(PowerUsageState state, QbusConfigurationSettings settings)
+        {
+            var eqoWebSession = await EqoWebSession.CreateSessionAsync(settings.IpAddress, settings.Port, settings.Username, settings.Password);
 
-            //var eqoWebSession = await EqoWebSession.CreateSessionAsync(qbusSettings.IpAddress, qbusSettings.Port, qbusSettings.Username, qbusSettings.Password);
+            var controlItems = await eqoWebSession.GetSolarIndicatorControlItems(settings);
 
-            //var controlLists = await eqoWebSession.GetControlLists();
+            List<Task> tasks = new List<Task>();
 
-            //var solarIndicators = GetSolarIndicatorControlItems(qbusSettings.SolarIndicators, controlLists.First());
+            foreach (var controlItem in controlItems)
+            {
+                tasks.Add(eqoWebSession.SetSolarIndicatorAsync(controlItem, state));
+            }
 
-            //foreach (var solarIndicator in solarIndicators)
-            //{
-            //    await eqoWebSession.SetControlItemValueAsync(solarIndicator.Channel, 1);
-            //}
-
-
-            //var x = new HomeWizardService(new HomeWizardDevice("test", "192.168.1.101")); //devices.First());
-
-            //var result = await x.GetCurrentMeasurements();
-
-            //Console.WriteLine($"Import: {result.TotalPowerImportInKwh}");
-            //Console.WriteLine($"Import: {result.TotalPowerExportInKwh}");
+            await Task.WhenAll(tasks);
         }
 
         private static async Task<HomeWizardDevice> GetHomeWizardDevice(IConfiguration configuration, ILoggerFactory loggerFactory)
@@ -77,26 +81,6 @@ namespace Fg.SolarProductionAlerter
             }
 
             return device;
-        }
-
-        private static IEnumerable<string> GetConfiguredSolarIndicatorItems(IConfiguration configuration)
-        {
-            var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
-
-            if (String.IsNullOrWhiteSpace(qbusSettings?.SolarIndicators))
-            {
-                throw new ConfigurationErrorsException("No QBus alerters configured.  QBus__SolarIndicators setting not found.");
-            }
-
-            return qbusSettings.SolarIndicators.Split(",");
-        }
-
-        private static IEnumerable<ControlItem> GetSolarIndicatorControlItems(string solarIndicators, ControlListGroup controlListGroup)
-        {
-            string[] configuredSolarIndicators = solarIndicators.Split(",");
-
-            return controlListGroup.Items
-                .Where(c => configuredSolarIndicators.Contains(c.Name, StringComparer.OrdinalIgnoreCase)).ToArray();
         }
 
         private static IConfiguration BuildConfiguration()
