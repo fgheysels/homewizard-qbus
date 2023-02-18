@@ -4,6 +4,9 @@ The goal of this project is to inform me and the members of my family if our sol
 
 # How does it work
 
+A process that runs indefinitely reads out the measurements of the HomeWizard P1 device at a certain interval.
+If it turns out that the solar-panels are producing that much energy that we have a surplus of energy, a signal is triggered in the QBus home automation system that informs the habitants about the energy surplus.
+
 # Build and run
 
 ## Build the image for a Windows operating system
@@ -23,11 +26,6 @@ The goal of this project is to inform me and the members of my family if our sol
   The `--network="host"` argument makes sure that the container connects to the host's network.
   https://docs.docker.com/engine/api/v1.32/#tag/Container/operation/ContainerList
 
-- Push to dockerhub
-  - Make sure to be logged in with Docker Hub via `docker login`
-  - Push the image to the repository `docker push fgheysels/solarpoweralerter:001`
-
-- Pull image `docker pull docker.io/fgheysels/solarpoweralerter:001`
 
 ## Building for ARM32 devices
 
@@ -51,6 +49,18 @@ Once everything is in place, build the image using this command:
 ```
 docker buildx build . -f .\Dockerfile-arm32 -t solarpoweralerter:<tag>
 ```
+
+## Push to dockerhub
+
+- Build the container locally
+- Tag the container so that it can be pushed to dockerhub:
+  ```
+  docker tag solarpoweralerter:001 docker.io/fgheysels/solarpoweralerter:001
+  ```
+- Make sure to be logged in with Docker Hub via `docker login`
+- Push the image to the repository `docker push fgheysels/solarpoweralerter:001`
+
+- Pull image `docker pull docker.io/fgheysels/solarpoweralerter:001`
 
 ## Kubernetes sources
 
