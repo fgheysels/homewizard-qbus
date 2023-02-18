@@ -4,19 +4,19 @@ namespace Fg.SolarProductionAlerter.HomeWizard.Models
 {
     public class Measurement
     {
-
         public Measurement()
         {
         }
 
-        public Measurement(DateTimeOffset timestamp, double totalPowerImportInKwh, double totalPowerExportInKwh)
+        public Measurement(double activePowerInWatt, double totalPowerImportInKwh, double totalPowerExportInKwh)
         {
-            Timestamp = timestamp;
+            ActivePowerInWatt = activePowerInWatt;
             TotalPowerExportInKwh = totalPowerExportInKwh;
             TotalPowerImportInKwh = totalPowerImportInKwh;
         }
 
-        public DateTimeOffset Timestamp { get; set; }
+        [JsonPropertyName("active_power_w")]
+        public double ActivePowerInWatt { get; set; }
 
         [JsonPropertyName("total_power_import_kwh")]
         public double TotalPowerImportInKwh { get; set; }

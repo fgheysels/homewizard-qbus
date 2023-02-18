@@ -37,8 +37,6 @@ namespace Fg.SolarProductionAlerter.HomeWizard
 
             }
 
-            measurement.Timestamp = DateTimeOffset.Now;
-
             return measurement;
         }
     }
