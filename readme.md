@@ -64,4 +64,10 @@ docker buildx build . -f .\Dockerfile-arm32 -t solarpoweralerter:<tag>
 
 ## Kubernetes sources
 
+Deploy the component on a Kubernetes cluster by simply deploying the deployment manifest.
+
+```
+kubectl apply -f .\deploy\k8s\solar-prod-alert.yml -n solar-alert
+```
+
 https://www.alibabacloud.com/help/en/container-service-for-kubernetes/latest/use-the-host-network
