@@ -58,7 +58,7 @@ namespace Fg.SolarProductionAlerter
                     logger.LogError(ex, "An unexpected error occurred");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(30), cts.Token);
+                await Task.Delay(DetermineWaitTime(logger), cts.Token);
             }
         }
 
@@ -95,6 +95,23 @@ namespace Fg.SolarProductionAlerter
             }
 
             return device;
+        }
+
+        private static readonly TimeSpan HalfPastTen = new TimeSpan(22, 30, 0);
+        private static readonly TimeSpan FiveInTheMorning = new TimeSpan(5, 0, 0);
+
+        private static TimeSpan DetermineWaitTime(ILogger logger)
+        {
+            if (DateTime.Now.TimeOfDay > HalfPastTen)
+            {
+                var waitTime = DateTime.Now.Date.AddDays(1).Add(FiveInTheMorning) - DateTime.Now;
+
+                logger.LogInformation($"It's evening - waiting until next morning before checking status again.  That is {waitTime} of sleep");
+
+                return waitTime;
+            }
+
+            return TimeSpan.FromSeconds(30);
         }
 
         private static IConfiguration BuildConfiguration()
