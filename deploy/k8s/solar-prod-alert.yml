@@ -24,6 +24,6 @@ spec:
         - name: QBus__Port
           value: "8444"
         - name: QBus__Username
-          value: QBus
+          value: QBUS
         - name: QBus__SolarIndicators
           value: SOLAR_INDICA
