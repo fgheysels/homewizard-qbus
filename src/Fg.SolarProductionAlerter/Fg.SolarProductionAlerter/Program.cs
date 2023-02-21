@@ -31,23 +31,32 @@ namespace Fg.SolarProductionAlerter
 
             while (cts.IsCancellationRequested == false)
             {
-                var powerUsage = await pud.CalculatePowerUsageStateAsync();
-
-                logger.LogInformation($"Power State: {powerUsage}");
-
-                if (powerUsage != previousPowerUsage && powerUsage != PowerUsageState.Unknown)
+                try
                 {
-                    var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
+                    var powerUsage = await pud.CalculatePowerUsageStateAsync();
 
-                    if (qbusSettings == null)
+                    logger.LogDebug($"Power State: {powerUsage}");
+
+                    if (powerUsage != previousPowerUsage && powerUsage != PowerUsageState.Unknown)
                     {
-                        throw new InvalidOperationException("Unable to retrieve QBus settings");
+                        logger.LogInformation($"Power Usage state changed from {previousPowerUsage} to {powerUsage}");
+
+                        var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
+
+                        if (qbusSettings == null)
+                        {
+                            throw new InvalidOperationException("Unable to retrieve QBus settings");
+                        }
+
+                        await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSettings);
                     }
 
-                    await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSettings);
+                    previousPowerUsage = powerUsage;
                 }
-
-                previousPowerUsage = powerUsage;
+                catch( Exception ex)
+                {
+                    logger.LogError(ex, "An unexpected error occurred");
+                }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), cts.Token);
             }

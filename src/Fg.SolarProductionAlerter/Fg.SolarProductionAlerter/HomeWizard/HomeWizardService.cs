@@ -34,7 +34,6 @@ namespace Fg.SolarProductionAlerter.HomeWizard
             if (measurement == null)
             {
                 throw new InvalidOperationException("Unable to deserialize response to model");
-
             }
 
             return measurement;
