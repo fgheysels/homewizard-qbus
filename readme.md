@@ -1,11 +1,13 @@
 # Introduction
 
-The goal of this project is to inform me and the members of my family if our solar-panels are producing 
+The goal of this project is to inform me and the members of my family if our solar-panels are producing more electricity than what we're currently consuming.
 
 # How does it work
 
 A process that runs indefinitely reads out the measurements of the HomeWizard P1 device at a certain interval.
 If it turns out that the solar-panels are producing that much energy that we have a surplus of energy, a signal is triggered in the QBus home automation system that informs the habitants about the energy surplus.
+
+I have this process running on a Raspberry Pi where it is hosted in Kubernetes (k3s).  This is actually overkill, but I wanted to experiment with Kubernetes as well.  Information on how to install k3s on a Raspberry Pi can be found [here](https://github.com/fgheysels/pi_k3s).
 
 # Build and run
 
@@ -37,12 +39,7 @@ You also need the required emulators.  Find information on how to install them [
 
 Make sure that you have the linux/arm/v7 emulator.  Verify this by executing `docker buildx ls`.
 
-https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/README.md#build-an-image-for-arm32-and-arm64
-
-
-https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/Dockerfile.debian-arm32
-
-https://github.com/dotnet/sdk/issues/28971
+Additional background information for this can be found [here](https://github.com/dotnet/dotnet-docker/blob/main/samples/dotnetapp/README.md#build-an-image-for-arm32-and-arm64).
 
 Once everything is in place, build the image using this command:
 
@@ -58,16 +55,14 @@ docker buildx build . -f .\Dockerfile-arm32 -t solarpoweralerter:<tag>
   docker tag solarpoweralerter:001 docker.io/fgheysels/solarpoweralerter:001
   ```
 - Make sure to be logged in with Docker Hub via `docker login`
-- Push the image to the repository `docker push fgheysels/solarpoweralerter:001`
+- Push the image to the repository `docker push fgheysels/solarpoweralerter:0.0.1`
 
-- Pull image `docker pull docker.io/fgheysels/solarpoweralerter:001`
+- Pull image `docker pull docker.io/fgheysels/solarpoweralerter:0.0.1`
 
-## Kubernetes sources
+## Deploy to Kubernetes
 
 Deploy the component on a Kubernetes cluster by simply deploying the deployment manifest.
 
 ```
 kubectl apply -f .\deploy\k8s\solar-prod-alert.yml -n solar-alert
 ```
-
-https://www.alibabacloud.com/help/en/container-service-for-kubernetes/latest/use-the-host-network

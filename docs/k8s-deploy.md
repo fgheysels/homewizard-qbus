@@ -23,3 +23,8 @@ kubectl describe pod <podname> -n solar-alert
 
 kubectl logs <podname> -n solar-alert
 ```
+
+## Additional information
+
+The program is running in a container, but the program needs to query the local network to find the HomeWizard device.  This is done via an mDNS call.  
+To succeed, the program needs to be able to query the host network.  Therefore, `hostNetwork: true` is specified in the `spec` of the deployment template.
