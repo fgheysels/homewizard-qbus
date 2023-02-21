@@ -70,7 +70,28 @@ namespace Fg.SolarProductionAlerter.Qbus
 
         public async Task SetSolarIndicatorAsync(ControlItem solarIndicator, PowerUsageState state)
         {
-            await SetControlItemValueAsync(solarIndicator.Channel, (int)state);
+            int value = 0;
+
+            switch (state)
+            {
+                case PowerUsageState.Unknown:
+                    value = 0; 
+                    break;
+                case PowerUsageState.NotEnoughProduction:
+                    value = 1; 
+                    break;
+                case PowerUsageState.BreakEven:
+                    value = 2;
+                    break;
+                case PowerUsageState.OverProduction:
+                    value = 3;
+                    break;
+                case PowerUsageState.ExtremeOverProduction:
+                    value = 4;
+                    break;
+            }
+
+            await SetControlItemValueAsync(solarIndicator.Channel, value);
         }
 
         public async Task SetControlItemValueAsync(int channel, int value)
@@ -86,23 +107,23 @@ namespace Fg.SolarProductionAlerter.Qbus
             };
 
             var response = await SendRequestAsync<object>(
-                                    _address, 
-                                    _port, 
-                                    HttpMethod.Post, 
+                                    _address,
+                                    _port,
+                                    HttpMethod.Post,
                                     _sessionCookie,
                                     new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(setControlData)));
 
             if (response.Type != 13)
             {
-
+                throw new InvalidOperationException("Setting control-item value failed");
             }
         }
 
         private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(
-            string address, 
-            int port, 
-            HttpMethod method, 
-            string? sessionCookie = null, 
+            string address,
+            int port,
+            HttpMethod method,
+            string? sessionCookie = null,
             params KeyValuePair<string, string>[] bodyValues)
         {
             var message = new HttpRequestMessage(method, $"http://{address}:{port}/default.aspx");

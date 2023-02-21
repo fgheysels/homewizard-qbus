@@ -39,6 +39,11 @@ namespace Fg.SolarProductionAlerter
                 {
                     var qbusSettings = configuration.GetSection("Qbus").Get<QbusConfigurationSettings>();
 
+                    if (qbusSettings == null)
+                    {
+                        throw new InvalidOperationException("Unable to retrieve QBus settings");
+                    }
+
                     await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSettings);
                 }
 
