@@ -30,7 +30,7 @@ namespace Fg.SolarProductionAlerter
                 return PowerUsageState.OverProduction;
             }
 
-            if (currentPowerUsage.ActivePowerInWatt > 100)
+            if (currentPowerUsage.ActivePowerInWatt > 200)
             {
                 return PowerUsageState.NotEnoughProduction;
             }
