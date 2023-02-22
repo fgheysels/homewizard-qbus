@@ -1,4 +1,5 @@
-﻿using Fg.SolarProductionAlerter.Qbus.Models;
+﻿using Fg.SolarProductionAlerter.Configuration;
+using Fg.SolarProductionAlerter.Qbus.Models;
 using System.Text.Json;
 
 namespace Fg.SolarProductionAlerter.Qbus

@@ -1,4 +1,5 @@
-﻿using Fg.SolarProductionAlerter.HomeWizard;
+﻿using Fg.SolarProductionAlerter.Configuration;
+using Fg.SolarProductionAlerter.HomeWizard;
 using Fg.SolarProductionAlerter.Qbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,9 @@ namespace Fg.SolarProductionAlerter
             {
                 try
                 {
-                    var powerUsage = await pud.CalculatePowerUsageStateAsync();
+                    var thresholdSettings = configuration.GetSection("PowerUsageThresholds").Get<PowerUsageThresholdSettings>();
+
+                    var powerUsage = await pud.CalculatePowerUsageStateAsync(thresholdSettings ?? PowerUsageThresholdSettings.Default);
 
                     logger.LogDebug($"Power State: {powerUsage}");
 
@@ -53,7 +56,7 @@ namespace Fg.SolarProductionAlerter
 
                     previousPowerUsage = powerUsage;
                 }
-                catch( Exception ex)
+                catch (Exception ex)
                 {
                     logger.LogError(ex, "An unexpected error occurred");
                 }

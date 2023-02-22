@@ -3,11 +3,14 @@
     "Fg.SolarProductionAlerter": {
       "commandName": "Project",
       "environmentVariables": {
-        "QBus__Username": "",
+        "QBus__Username": "QBUS",
         "QBus__IpAddress": "192.168.1.14",
         "QBus__Port": "8444",
         "QBus__SolarIndicators": "SOLAR_INDICA",
-        "HomeWizard__P1HostName": "p1meter-015AB0"
+        "HomeWizard__P1HostName": "p1meter-015AB0",
+        "PowerUsageThresholds__NotEnoughProduction": "200",
+        "PowerUsageThresholds__OverProduction": "-800",
+        "PowerUsageThresholds__ExtremeOverProduction": "-3000"
       }
     }
   }

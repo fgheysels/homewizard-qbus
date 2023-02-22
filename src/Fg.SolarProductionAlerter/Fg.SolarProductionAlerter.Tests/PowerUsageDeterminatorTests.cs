@@ -1,3 +1,4 @@
+using Fg.SolarProductionAlerter.Configuration;
 using Fg.SolarProductionAlerter.HomeWizard;
 using Fg.SolarProductionAlerter.HomeWizard.Models;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,7 +19,14 @@ namespace Fg.SolarProductionAlerter.Tests
 
             var sut = new PowerUsageDeterminator(homeWizardService.Object, NullLogger<PowerUsageDeterminator>.Instance);
 
-            var result = await sut.CalculatePowerUsageStateAsync();
+            var thresholds = new PowerUsageThresholdSettings
+            {
+                NotEnoughProductionThreshold = 200,
+                OverProductionThreshold = -800,
+                ExtremeOverProductionThreshold = -2500
+            };
+
+            var result = await sut.CalculatePowerUsageStateAsync(thresholds);
 
             Assert.Equal(expectedState, result);
         }

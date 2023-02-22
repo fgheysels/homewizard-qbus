@@ -1,4 +1,5 @@
-﻿using Fg.SolarProductionAlerter.HomeWizard;
+﻿using Fg.SolarProductionAlerter.Configuration;
+using Fg.SolarProductionAlerter.HomeWizard;
 using Microsoft.Extensions.Logging;
 
 namespace Fg.SolarProductionAlerter
@@ -14,23 +15,23 @@ namespace Fg.SolarProductionAlerter
             _logger = logger;
         }
 
-        public async Task<PowerUsageState> CalculatePowerUsageStateAsync()
+        public async Task<PowerUsageState> CalculatePowerUsageStateAsync(PowerUsageThresholdSettings thresholds)
         {
             var currentPowerUsage = await _homeWizard.GetCurrentMeasurements();
 
             _logger.LogInformation($"Power Usage: {currentPowerUsage.ActivePowerInWatt} watt");
 
-            if (currentPowerUsage.ActivePowerInWatt <= -3000)
+            if (currentPowerUsage.ActivePowerInWatt <= thresholds.ExtremeOverProductionThreshold)
             {
                 return PowerUsageState.ExtremeOverProduction;
             }
 
-            if (currentPowerUsage.ActivePowerInWatt <= -800)
+            if (currentPowerUsage.ActivePowerInWatt <= thresholds.OverProductionThreshold)
             {
                 return PowerUsageState.OverProduction;
             }
 
-            if (currentPowerUsage.ActivePowerInWatt > 200)
+            if (currentPowerUsage.ActivePowerInWatt > thresholds.NotEnoughProductionThreshold)
             {
                 return PowerUsageState.NotEnoughProduction;
             }
