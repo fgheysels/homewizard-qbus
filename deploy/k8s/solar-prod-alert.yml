@@ -27,3 +27,9 @@ spec:
           value: QBUS
         - name: QBus__SolarIndicators
           value: SOLAR_INDICA
+        - name: PowerUsageThresholds__NotEnoughProduction
+          value: "200"
+        - name: PowerUsageThresholds__OverProduction
+          value: "-800"
+        - name: PowerUsageThresholds__ExtremeOverProduction
+          value: "-2500"

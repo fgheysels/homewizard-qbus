@@ -66,3 +66,20 @@ Deploy the component on a Kubernetes cluster by simply deploying the deployment 
 ```
 kubectl apply -f .\deploy\k8s\solar-prod-alert.yml -n solar-alert
 ```
+
+## Configuration
+
+Following configuration settings are required:
+
+|Setting Name|Value|Description|
+|-|-|-|
+|HomeWizard__P1HostName|p1meter_015ABC|The hostname of the HomeWizard P1 name. We try to find the HomeWizard in the network via this name|
+|QBus__IpAddress|192.168.1.14|The IP address of the QBus controller|
+|QBus__Port|8444|The port at which the QBus EqoWeb API is listening|
+|QBus__Username|QBUS|The username of the account that must be used to connect to QBus EqoWeb. Note that the username is case-sensitive|
+|QBus__SolarIndicators||A comma-separated string that lists the QBus devices that must be notified on Power Usage state changes|
+|PowerUsageThresholds__NotEnoughProduction|200|The amount of electricity power (in watt) that must be exceeded to determine that we're consuming more electricity than that we're producing|
+|PowerUsageThresholds__OverProduction|-800|The amount of electricity powser (in watt) that must be passed to determine that we're producing more electricity than that we're consuming|
+|PowerUsageThresholds__ExtremeOverProduction|-2500|The amount of electricity power (in watt) that must be passed to determine that we're producing a whole lot more electricity than that we're consuming|
+
+When the power usage (in watt) is between `PowerUsageThresholds__NotEnoughProduction` and `PowerUsageThresholds__OverProduction`, we consider this as a 'break-even' state.
