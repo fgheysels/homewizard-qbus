@@ -11,6 +11,8 @@ I have this process running on a Raspberry Pi where it is hosted in Kubernetes (
 
 # Build and run
 
+You can pull the image from [Dockerhub](https://hub.docker.com/r/fgheysels/solarpoweralerter/tags).
+
 ## Build the image for a Windows operating system
 
 - Build the project as a container image
@@ -25,8 +27,7 @@ I have this process running on a Raspberry Pi where it is hosted in Kubernetes (
   docker run solarpoweralerter:001 --network="host"
   ```
 
-  The `--network="host"` argument makes sure that the container connects to the host's network.
-  https://docs.docker.com/engine/api/v1.32/#tag/Container/operation/ContainerList
+  The `--network="host"` argument makes sure that the [container connects to the host's network](https://docs.docker.com/engine/reference/run/#network-settings).
 
 
 ## Building for ARM32 devices
