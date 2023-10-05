@@ -8,7 +8,7 @@ namespace Fg.SolarProductionAlerter.Qbus
     {
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        internal static async Task<EqoWebSession> CreateSessionAsync(string address, int port, string username, string password)
+        internal static async Task<EqoWebSession> CreateSessionAsync(string address, int port, string username, string? password)
         {
             var loginData = new
             {
@@ -25,7 +25,7 @@ namespace Fg.SolarProductionAlerter.Qbus
 
             if (response.Value.Rsp == false)
             {
-                throw new Exception("Login to QBUS failed");
+                throw new Exception($"Login to QBUS failed. Check if QBus settings are correct.");
             }
 
             return new EqoWebSession(address, port, response.Value.Id);

@@ -109,8 +109,8 @@ namespace Fg.SolarProductionAlerter
             {
                 var waitTime = DateTime.Now.Date.AddDays(1).Add(FiveInTheMorning) - DateTime.Now;
 
-                logger.LogInformation($"It's evening - waiting until next morning before checking status again.  That is {waitTime} of sleep");
-
+                logger.LogDebug($"It's evening - waiting until next morning before checking status again.  That is {waitTime} of sleep");
+                
                 return waitTime;
             }
 

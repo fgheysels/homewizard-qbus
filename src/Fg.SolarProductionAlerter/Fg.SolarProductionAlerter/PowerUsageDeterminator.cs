@@ -19,7 +19,7 @@ namespace Fg.SolarProductionAlerter
         {
             var currentPowerUsage = await _homeWizard.GetCurrentMeasurements();
 
-            _logger.LogInformation($"Power Usage: {currentPowerUsage.ActivePowerInWatt} watt");
+            _logger.LogDebug($"Power Usage: {currentPowerUsage.ActivePowerInWatt} watt");
 
             if (currentPowerUsage.ActivePowerInWatt <= thresholds.ExtremeOverProductionThreshold)
             {

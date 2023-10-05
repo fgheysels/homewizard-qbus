@@ -15,7 +15,7 @@ spec:
       hostNetwork: true # allows to connect to the host-network and detect devices via mdns
       containers:
       - name: solar-prod-alert
-        image: fgheysels/solarpoweralerter:0.0.7
+        image: fgheysels/solarpoweralerter:0.0.11
         env:
         - name: HomeWizard__P1HostName
           value: p1meter-015AB0
@@ -24,7 +24,9 @@ spec:
         - name: QBus__Port
           value: "8444"
         - name: QBus__Username
-          value: QBUS
+          value: <provide-qbus-username>
+        - name: QBus_Password
+          value: <provide-qbus-password>
         - name: QBus__SolarIndicators
           value: SOLAR_INDICA
         - name: PowerUsageThresholds__NotEnoughProduction
