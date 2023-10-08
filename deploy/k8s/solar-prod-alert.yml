@@ -26,7 +26,9 @@ spec:
         - name: QBus__Port
           value: "8444"
         - name: QBus__Username
-          value: QBUS
+          value: <provide-qbus-username>
+        - name: QBus_Password
+          value: <provide-qbus-password>
         - name: QBus__SolarIndicators
           value: SOLAR_INDICA
         - name: PowerUsageThresholds__NotEnoughProduction

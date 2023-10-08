@@ -78,6 +78,7 @@ Following configuration settings are required:
 |QBus__IpAddress|192.168.1.14|The IP address of the QBus controller|
 |QBus__Port|8444|The port at which the QBus EqoWeb API is listening|
 |QBus__Username|QBUS|The username of the account that must be used to connect to QBus EqoWeb. Note that the username is case-sensitive|
+|QBus__Password||The password of the account that is used to connect to QBus EqoWeb|
 |QBus__SolarIndicators||A comma-separated string that lists the QBus devices that must be notified on Power Usage state changes|
 |PowerUsageThresholds__NotEnoughProduction|200|The amount of electricity power (in watt) that must be exceeded to determine that we're consuming more electricity than that we're producing|
 |PowerUsageThresholds__OverProduction|-800|The amount of electricity powser (in watt) that must be passed to determine that we're producing more electricity than that we're consuming|
