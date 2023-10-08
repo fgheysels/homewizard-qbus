@@ -28,18 +28,38 @@ namespace Fg.SolarProductionAlerter.Qbus
                 throw new Exception("Login to QBUS failed");
             }
 
-            return new EqoWebSession(address, port, response.Value.Id);
+            return new EqoWebSession(address, port, response.Value.Id, DateTime.UtcNow);
         }
 
         private readonly string _sessionCookie;
         private readonly string _address;
         private readonly int _port;
+        private readonly DateTime _sessionStartTime;
 
-        private EqoWebSession(string address, int port, string sessionCookie)
+        private EqoWebSession(string address, int port, string sessionCookie, DateTime sessionStartTime)
         {
             _address = address;
             _port = port;
             _sessionCookie = sessionCookie;
+            _sessionStartTime = sessionStartTime;
+        }
+
+        public TimeSpan SessionLifeTime
+        {
+            get
+            {
+                return DateTime.UtcNow - _sessionStartTime;
+            }
+        }
+
+        private readonly TimeSpan MaxSessionLifeTime = TimeSpan.FromMinutes(20);
+
+        public bool IsExpired
+        {
+            get
+            {
+                return SessionLifeTime > MaxSessionLifeTime;
+            }
         }
 
         public async Task<IEnumerable<ControlItem>> GetSolarIndicatorControlItems(QbusConfigurationSettings settings)

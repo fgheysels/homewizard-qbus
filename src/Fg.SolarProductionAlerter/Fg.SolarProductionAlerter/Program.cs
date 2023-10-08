@@ -4,6 +4,7 @@ using Fg.SolarProductionAlerter.Qbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
+using System.Drawing;
 
 namespace Fg.SolarProductionAlerter
 {
@@ -19,8 +20,8 @@ namespace Fg.SolarProductionAlerter
                 e.Cancel = true;
             };
 
-            var loggerFactory = CreateLoggerFactory();
             var configuration = BuildConfiguration();
+            var loggerFactory = CreateLoggerFactory(configuration);
 
             var homeWizard = await GetHomeWizardDevice(configuration, loggerFactory);
 
@@ -51,7 +52,9 @@ namespace Fg.SolarProductionAlerter
                             throw new InvalidOperationException("Unable to retrieve QBus settings");
                         }
 
-                        await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSettings);
+                        var qbusSession = await EqoWebSessionRegistry.GetSessionAsync(qbusSettings, logger);
+
+                        await ModifyQbusSolarIndicatorAsync(powerUsage, qbusSession, qbusSettings);
                     }
 
                     previousPowerUsage = powerUsage;
@@ -65,10 +68,8 @@ namespace Fg.SolarProductionAlerter
             }
         }
 
-        private static async Task ModifyQbusSolarIndicatorAsync(PowerUsageState state, QbusConfigurationSettings settings)
+        private static async Task ModifyQbusSolarIndicatorAsync(PowerUsageState state, EqoWebSession eqoWebSession, QbusConfigurationSettings settings)
         {
-            var eqoWebSession = await EqoWebSession.CreateSessionAsync(settings.IpAddress, settings.Port, settings.Username, settings.Password);
-
             var controlItems = await eqoWebSession.GetSolarIndicatorControlItems(settings);
 
             List<Task> tasks = new List<Task>();
@@ -124,13 +125,20 @@ namespace Fg.SolarProductionAlerter
             return configuration;
         }
 
-        private static ILoggerFactory CreateLoggerFactory()
+        private static ILoggerFactory CreateLoggerFactory(IConfiguration configuration)
         {
-            return LoggerFactory.Create(builder => builder.AddSimpleConsole(options =>
+            return LoggerFactory.Create(builder =>
             {
-                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss";
-                options.UseUtcTimestamp = false;
-            }));
+                // Passing in 'Configuration' in itself has no effect on the logger
+                // regarding the configured log-levels.  Need to explicitly pass in
+                // the Logging section.
+                builder.AddConfiguration(configuration.GetSection("Logging"));
+                builder.AddSimpleConsole(options =>
+                {
+                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss";
+                    options.UseUtcTimestamp = false;
+                });
+            });
         }
     }
 }
