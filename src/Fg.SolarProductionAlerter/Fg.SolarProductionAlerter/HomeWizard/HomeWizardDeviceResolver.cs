@@ -18,7 +18,7 @@ namespace Fg.SolarProductionAlerter.HomeWizard
 
             foreach (var device in results)
             {
-                logger.LogDebug($"Device {device.DisplayName} found");
+                logger.LogDebug($"Device {device.DisplayName} found at IP {device.IPAddress}");
                 devices.Add(new HomeWizardDevice(device.DisplayName, device.IPAddress));
             }
 
