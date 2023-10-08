@@ -15,7 +15,7 @@ spec:
       hostNetwork: true # allows to connect to the host-network and detect devices via mdns
       containers:
       - name: solar-prod-alert
-        image: fgheysels/solarpoweralerter:0.0.15
+        image: fgheysels/solarpoweralerter:0.0.16
         env:
         - name: Logging__LogLevel__Default
           value: Information

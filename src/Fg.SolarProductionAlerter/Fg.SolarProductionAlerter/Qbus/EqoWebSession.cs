@@ -136,7 +136,7 @@ namespace Fg.SolarProductionAlerter.Qbus
 
             if (response.Type != 13)
             {
-                throw new InvalidOperationException("Setting control-item value failed");
+                throw new InvalidOperationException($"Setting control-item value failed - {response.Type}={response.Value}");
             }
         }
 
@@ -158,12 +158,12 @@ namespace Fg.SolarProductionAlerter.Qbus
 
             var response = await _httpClient.SendAsync(message);
 
+            var responseContent = await response.Content.ReadAsStringAsync();
+
             if (response.IsSuccessStatusCode == false)
             {
-                throw new HttpRequestException("EqoWeb request failed");
+                throw new HttpRequestException("EqoWeb request failed - " + responseContent);
             }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<EqoWebResponse<TResponse>>(responseContent);
         }
