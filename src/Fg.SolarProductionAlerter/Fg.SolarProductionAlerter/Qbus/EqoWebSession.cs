@@ -1,4 +1,5 @@
-﻿using Fg.SolarProductionAlerter.Configuration;
+﻿using System.Configuration;
+using Fg.SolarProductionAlerter.Configuration;
 using Fg.SolarProductionAlerter.Qbus.Models;
 using System.Text.Json;
 
@@ -25,7 +26,7 @@ namespace Fg.SolarProductionAlerter.Qbus
 
             if (response.Value.Rsp == false)
             {
-                throw new Exception($"Login to QBUS failed. Check if QBus settings are correct.");
+                throw new ConfigurationErrorsException("Login to QBUS failed. Check if QBus settings are correct.");
             }
 
             return new EqoWebSession(address, port, response.Value.Id, DateTime.UtcNow);

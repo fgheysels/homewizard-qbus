@@ -1,10 +1,9 @@
 ﻿using Fg.SolarProductionAlerter.Configuration;
-using Fg.SolarProductionAlerter.HomeWizard;
 using Fg.SolarProductionAlerter.Qbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
-using System.Drawing;
+using Fg.HomeWizard.EnergyApi.Client;
 
 namespace Fg.SolarProductionAlerter
 {
@@ -27,7 +26,7 @@ namespace Fg.SolarProductionAlerter
 
             var logger = loggerFactory.CreateLogger<Program>();
 
-            var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard), loggerFactory.CreateLogger<PowerUsageDeterminator>());
+            var pud = new PowerUsageDeterminator(new HomeWizardService(homeWizard, new HttpClient()), loggerFactory.CreateLogger<PowerUsageDeterminator>());
 
             PowerUsageState previousPowerUsage = PowerUsageState.Unknown;
 
@@ -95,7 +94,7 @@ namespace Fg.SolarProductionAlerter
 
             if (device == null)
             {
-                throw new Exception("No HomeWizard device found in network with name " + settings.P1HostName);
+                throw new ConfigurationErrorsException("No HomeWizard device found in network with name " + settings.P1HostName);
             }
 
             return device;

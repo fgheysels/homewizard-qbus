@@ -1,5 +1,5 @@
-﻿using Fg.SolarProductionAlerter.Configuration;
-using Fg.SolarProductionAlerter.HomeWizard;
+﻿using Fg.HomeWizard.EnergyApi.Client;
+using Fg.SolarProductionAlerter.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Fg.SolarProductionAlerter
@@ -17,7 +17,7 @@ namespace Fg.SolarProductionAlerter
 
         public async Task<PowerUsageState> CalculatePowerUsageStateAsync(PowerUsageThresholdSettings thresholds)
         {
-            var currentPowerUsage = await _homeWizard.GetCurrentMeasurements();
+            var currentPowerUsage = await _homeWizard.GetCurrentMeasurementsAsync();
 
             _logger.LogDebug($"Power Usage: {currentPowerUsage.ActivePowerInWatt} watt");
 
