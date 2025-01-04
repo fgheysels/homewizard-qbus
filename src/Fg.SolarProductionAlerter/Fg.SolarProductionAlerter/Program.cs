@@ -9,6 +9,10 @@ namespace Fg.SolarProductionAlerter
 {
     internal class Program
     {
+        protected Program()
+        {
+        }
+
         static async Task Main(string[] args)
         {
             var cts = new CancellationTokenSource();
@@ -110,7 +114,7 @@ namespace Fg.SolarProductionAlerter
                 var waitTime = DateTime.Now.Date.AddDays(1).Add(FiveInTheMorning) - DateTime.Now;
 
                 logger.LogDebug($"It's evening - waiting until next morning before checking status again.  That is {waitTime} of sleep");
-                
+
                 return waitTime;
             }
 
