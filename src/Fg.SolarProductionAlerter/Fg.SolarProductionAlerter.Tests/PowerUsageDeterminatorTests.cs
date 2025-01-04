@@ -1,6 +1,5 @@
+using Fg.HomeWizard.EnergyApi.Client;
 using Fg.SolarProductionAlerter.Configuration;
-using Fg.SolarProductionAlerter.HomeWizard;
-using Fg.SolarProductionAlerter.HomeWizard.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -14,7 +13,7 @@ namespace Fg.SolarProductionAlerter.Tests
         {
             var homeWizardService = new Mock<IHomeWizardService>();
 
-            homeWizardService.SetupSequence(s => s.GetCurrentMeasurements())
+            homeWizardService.SetupSequence(s => s.GetCurrentMeasurementsAsync())
                              .ReturnsAsync(currentMeasurement);
 
             var sut = new PowerUsageDeterminator(homeWizardService.Object, NullLogger<PowerUsageDeterminator>.Instance);
@@ -35,28 +34,48 @@ namespace Fg.SolarProductionAlerter.Tests
         {
             yield return new object[]
             {
-                new Measurement(-1500, 0.05, 1.5),
+                new Measurement
+                {
+                    ActivePowerInWatt = -1500,
+                    TotalPowerImportInKwh = 0.05,
+                    TotalPowerExportInKwh = 1.5
+                },
 
                 PowerUsageState.OverProduction
             };
 
             yield return new object[]
             {
-                new Measurement(-3000, 0.05, 3.05),
+                new Measurement
+                {
+                    ActivePowerInWatt = -3000,
+                    TotalPowerImportInKwh = 0.05,
+                    TotalPowerExportInKwh = 3.05
+                },
 
                 PowerUsageState.ExtremeOverProduction
             };
 
             yield return new object[]
             {
-                new Measurement(1695, 1695.0, 0),
+                new Measurement
+                {
+                    ActivePowerInWatt = 1695,
+                    TotalPowerImportInKwh = 1695.0,
+                    TotalPowerExportInKwh = 0
+                },
 
                 PowerUsageState.NotEnoughProduction
             };
 
             yield return new object[]
             {
-                new Measurement(1694.709, 1694.709, 0),
+                new Measurement
+                {
+                    ActivePowerInWatt = 1694.709,
+                    TotalPowerImportInKwh = 1694.709,
+                    TotalPowerExportInKwh = 0
+                },
 
                 PowerUsageState.NotEnoughProduction
             };
