@@ -1,6 +1,6 @@
-﻿using System.Configuration;
-using Fg.SolarProductionAlerter.Configuration;
+﻿using Fg.SolarProductionAlerter.Configuration;
 using Fg.SolarProductionAlerter.Qbus.Models;
+using System.Configuration;
 using System.Text.Json;
 
 namespace Fg.SolarProductionAlerter.Qbus
@@ -67,11 +67,27 @@ namespace Fg.SolarProductionAlerter.Qbus
         {
             string[] configuredSolarIndicators = settings.SolarIndicators.Split(",");
 
+            if (configuredSolarIndicators == null)
+            {
+                return [];
+            }
+
             var eqoWebControlLists = await GetControlLists();
 
-            var controlItems = eqoWebControlLists.SelectMany(m => m.Items)
-                                                 .Where(c => configuredSolarIndicators.Contains(c.Name, StringComparer.OrdinalIgnoreCase))
-                                                 .ToArray();
+            if (eqoWebControlLists == null)
+            {
+                return [];
+            }
+
+            var allControlItems = eqoWebControlLists.SelectMany(m => m.Items);
+
+            if (allControlItems == null)
+            {
+                return [];
+            }
+
+            var controlItems = allControlItems.Where(c => configuredSolarIndicators.Contains(c.Name, StringComparer.OrdinalIgnoreCase))
+                                                          .ToArray();
 
             return controlItems;
         }
@@ -97,10 +113,10 @@ namespace Fg.SolarProductionAlerter.Qbus
             switch (state)
             {
                 case PowerUsageState.Unknown:
-                    value = 0; 
+                    value = 0;
                     break;
                 case PowerUsageState.NotEnoughProduction:
-                    value = 1; 
+                    value = 1;
                     break;
                 case PowerUsageState.BreakEven:
                     value = 2;
