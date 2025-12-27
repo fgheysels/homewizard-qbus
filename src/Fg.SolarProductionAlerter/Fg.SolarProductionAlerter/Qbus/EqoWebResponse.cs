@@ -3,6 +3,6 @@
     internal class EqoWebResponse<TValue>
     {
         public int Type { get; set; }
-        public TValue Value { get; set; }
+        public TValue? Value { get; set; }
     }
 }

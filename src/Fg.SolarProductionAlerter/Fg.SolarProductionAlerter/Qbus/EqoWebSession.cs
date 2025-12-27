@@ -24,7 +24,7 @@ namespace Fg.SolarProductionAlerter.Qbus
             var response = await SendRequestAsync<LoginResponseContent>(address, port, HttpMethod.Post, sessionCookie: null,
                                         new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(loginData)));
 
-            if (response.Value.Rsp == false)
+            if (response?.Value?.Rsp == false || string.IsNullOrWhiteSpace(response?.Value?.Id))
             {
                 throw new ConfigurationErrorsException("Login to QBUS failed. Check if QBus settings are correct.");
             }
@@ -103,6 +103,11 @@ namespace Fg.SolarProductionAlerter.Qbus
             var response = await SendRequestAsync<ControlListResponseContent>(_address, _port, HttpMethod.Post, _sessionCookie,
                 new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(getControlListsData)));
 
+            if (response?.Value == null)
+            {
+                return [];
+            }
+
             return response.Value.Groups;
         }
 
@@ -151,13 +156,18 @@ namespace Fg.SolarProductionAlerter.Qbus
                                     _sessionCookie,
                                     new KeyValuePair<string, string>("strJSON", JsonSerializer.Serialize(setControlData)));
 
+            if (response == null)
+            {
+                throw new InvalidOperationException("Setting control-item did not succeed");
+            }
+
             if (response.Type != 13)
             {
                 throw new InvalidOperationException($"Setting control-item value failed - {response.Type}={response.Value}");
             }
         }
 
-        private static async Task<EqoWebResponse<TResponse>> SendRequestAsync<TResponse>(
+        private static async Task<EqoWebResponse<TResponse>?> SendRequestAsync<TResponse>(
             string address,
             int port,
             HttpMethod method,
