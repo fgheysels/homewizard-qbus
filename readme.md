@@ -32,9 +32,9 @@ You can pull the image from [Dockerhub](https://hub.docker.com/r/fgheysels/solar
 
 ## Building for ARM32 devices
 
-If you want to run the image on a Raspberry PI, you need to use the `Dockerfile-arm32` for building the image.
+If you want to run the image on a Raspberry Pi (64 bit), you need to use the `Dockerfile-arm64` for building the image.
 
-If you build this container for arm32 on a Windows system, [use docker buildx to build the image](https://docs.docker.com/build/install-buildx/).
+If you build this container for arm64 on a Windows system, [use docker buildx to build the image](https://docs.docker.com/build/install-buildx/).
 
 You also need the required emulators.  Find information on how to install them [here](https://docs.docker.com/build/building/multi-platform/#build-and-run-multi-architecture-images).
 
@@ -45,7 +45,7 @@ Additional background information for this can be found [here](https://github.co
 Once everything is in place, build the image using this command:
 
 ```
-docker buildx build . -f .\Dockerfile-arm32 -t solarpoweralerter:<tag>
+docker buildx build . --platform linux/arm64 -f .\Dockerfile-arm64 -t solarpoweralerter:<tag>
 ```
 
 ## Push to dockerhub
